@@ -1,0 +1,6 @@
+resources:
+  schemas:
+    leaver_audit:
+      catalog_name: ${var.catalog}
+      name: ${var.schema}
+      comment: Audit log of the leaver cleanup job (deactivated users and what they owned).

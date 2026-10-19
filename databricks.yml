@@ -1,0 +1,44 @@
+bundle:
+  name: leaver-cleanup
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Catalog that holds the audit log schema.
+  schema:
+    description: Schema for the leaver_cleanup_log table.
+    default: identity_lifecycle
+  dry_run:
+    description: "true = report only, false = apply the changes."
+    default: "true"
+  revoke_tokens:
+    description: "true = revoke personal access tokens of leavers (when dry_run is false)."
+    default: "true"
+  fallback_owner:
+    description: Group or service principal that takes over Unity Catalog objects owned by a leaver.
+    default: ""
+  fallback_job_sp:
+    description: Application ID of the service principal that becomes owner and run_as of a leaver's non-bundle jobs.
+    default: ""
+  leaver_emails:
+    description: Optional comma-separated extra leavers, on top of the users deactivated in the account.
+    default: ""
+  schedule_pause_status:
+    default: PAUSED
+
+targets:
+  dev:
+    default: true
+    mode: development
+    variables:
+      catalog: dev_governance
+
+  prod:
+    mode: production
+    variables:
+      catalog: prod_governance
+      schedule_pause_status: UNPAUSED
+    # run_as:
+    #   service_principal_name: <application-id-of-the-cleanup-service-principal>

@@ -1,0 +1,35 @@
+resources:
+  jobs:
+    leaver_cleanup:
+      name: leaver_cleanup
+      description: >
+        Finds users deactivated in the account (Entra ID SCIM deprovisioning) and hands over
+        what they still own: non-bundle jobs, Unity Catalog objects and personal access tokens.
+        Every finding and action is written to the leaver_cleanup_log table.
+      tags:
+        managed_by: dab
+        cost_centre: data-platform
+      schedule:
+        quartz_cron_expression: "0 0 7 ? * MON"
+        timezone_id: Europe/Tallinn
+        pause_status: ${var.schedule_pause_status}
+      max_concurrent_runs: 1
+      parameters:
+        - name: catalog
+          default: ${resources.schemas.leaver_audit.catalog_name}
+        - name: schema
+          default: ${resources.schemas.leaver_audit.name}
+        - name: dry_run
+          default: ${var.dry_run}
+        - name: revoke_tokens
+          default: ${var.revoke_tokens}
+        - name: fallback_owner
+          default: ${var.fallback_owner}
+        - name: fallback_job_sp
+          default: ${var.fallback_job_sp}
+        - name: leaver_emails
+          default: ${var.leaver_emails}
+      tasks:
+        - task_key: leaver_cleanup
+          notebook_task:
+            notebook_path: ../src/leaver_cleanup.py
